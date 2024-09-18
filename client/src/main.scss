@@ -1,0 +1,22 @@
+body{
+    margin: 0;
+    padding: 0;
+}
+
+:root{
+    --theme1:#16423C;
+    --theme2:#FFB800;
+    --white:#fff;
+}
+
+@import "react-toastify/dist/ReactToastify.css";
+
+// FONTS
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Freeman&display=swap');
+// FONTS
+
+@import "../src/styles/home/home.scss";
+@import "../src/styles/navbar/navbar.scss";
+@import "../src/styles/authenication/auth.scss"

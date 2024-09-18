@@ -1,0 +1,234 @@
+.authenticate{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background: url("/assets/auth/earth.jpg") lightgray 50% / cover no-repeat;
+
+    .auth_con{
+        display: flex;
+        padding: 20px 100px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 41px;
+        align-self: stretch;
+
+        background: #FFF;
+
+        header{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            align-self: stretch;
+
+            .tag{
+                color: var(--theme1);
+                font-family: Inter;
+                font-size: 30px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: normal;
+
+                span{
+                    font-size: 34px;
+                    color: var(--theme2);
+                }
+            }
+
+            .tag_login{
+                font-size: 40px !important;
+
+                span{
+                    font-size: 40px !important;
+                }
+            }
+        }
+
+        form{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 46px;
+
+            .yr_in{
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 23px;
+
+                input{
+                    display: flex;
+                    max-width: 500px;
+                    min-width: 320px;
+                    padding: 16px 20px;
+                    align-items: center;
+                    gap: 10px;
+                    align-self: stretch;
+
+                    border-radius: 14px;
+                    border: 1px solid #333;
+
+                    font-family: Inter;
+                    font-size: 18px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: normal;
+                }
+
+                textarea{
+                    max-width: 500px;
+                    padding: 16px 20px;
+                    align-items: center;
+                    gap: 10px;
+                    align-self: stretch;
+
+                    border-radius: 14px;
+                    border: 1px solid #333;
+
+                    font-family: Inter;
+                    font-size: 18px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: normal;
+                }
+
+                input::placeholder, textarea::placeholder{
+                    font-family: Inter;
+                    font-size: 18px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: normal;
+                }
+
+                .in_ly{
+                    display: flex;
+                    align-items: center;
+                    gap: 23px;
+                    align-self: stretch;
+
+                    input{
+                        display: flex;
+                        padding: 16px 20px;
+                        align-items: center;
+                        gap: 10px;
+                        align-self: stretch;
+                        width:auto;
+    
+                        border-radius: 14px;
+                        border: 1px solid #333;
+    
+                        font-family: Inter;
+                        font-size: 18px;
+                        font-style: normal;
+                        font-weight: 500;
+                        line-height: normal;
+                    }
+    
+                    input::placeholder{
+                        font-family: Inter;
+                        font-size: 18px;
+                        font-style: normal;
+                        font-weight: 500;
+                        line-height: normal;
+                    }
+
+                    .bd{
+                        flex: 1;
+                    }
+
+                    input[type="number"]::-webkit-outer-spin-button,
+                    input[type="number"]::-webkit-inner-spin-button {
+                      -webkit-appearance: none;
+                      margin: 0;
+                    }
+                  
+                    input[type="number"] {
+                      -moz-appearance: textfield; /* Firefox */
+                    }
+                }
+            }
+
+            .sub{
+                display: flex;
+                padding: 16px 20px;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+                align-self: stretch;
+
+                border-radius: 14px;
+                border: 1px solid #333;
+                background: var(--theme1);
+                box-shadow: -8px 8px 0px 0px #061E1A;
+                transition: box-shadow 0.3s ease-in-out;
+                cursor: pointer;
+
+                color: #FFF;
+                font-family: Inter;
+                font-size: 18px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: normal;
+            }
+
+            .sub:hover{
+                box-shadow: -12px 12px 0px 0px #061E1A; 
+            }
+        }
+
+        .switch{
+            display: flex;
+            align-items: center;
+            gap: 4px;
+
+            .tag{
+                color: rgba(51, 51, 51, 0.50);
+                font-family: Inter;
+                font-size: 20px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: normal;
+
+                .to_ot_au{
+                    color: #16423C !important;
+                    font-family: Inter;
+                    font-size: 20px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: normal;
+                }
+            }
+        }
+
+        .or{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 26px;
+            align-self: stretch;
+
+            .tag{
+                color: rgba(51, 51, 51, 0.50);
+                font-family: Inter;
+                font-size: 20px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: normal;
+            }
+        }
+    }
+
+    .profilecreation{
+        header{
+            .tag{
+                font-size: 40px !important;
+                span{
+                    font-size: 40px !important; 
+                }
+            }
+        }
+    }
+}
