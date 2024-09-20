@@ -4,6 +4,8 @@ import Home from "./containers/Home/home";
 import Register from "./containers/Authentication/register";
 import Login from "./containers/Authentication/login";
 import ProfileCreation from "./containers/User/profileCreation";
+import ChallengeComponent from "./containers/challenge/challenge";
+import ChallengeRoom from "./containers/challenge/challengeRoom";
 import { isAuth } from "./utility/helper";
 
 // PrivateRoute component
@@ -21,6 +23,8 @@ const routes: RouteObject[] = [
     path: "/user/createmyprofile",
     element: <PrivateRoute element={<ProfileCreation />} />,
   },
+  { path: "/challenge", element: <ChallengeComponent /> },
+  { path: "/challenge/:id", element: <ChallengeRoom /> }, // New route
 ];
 
 export default routes;

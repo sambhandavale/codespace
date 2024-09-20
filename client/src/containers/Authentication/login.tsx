@@ -53,7 +53,6 @@ const Login: React.FC = () => {
           setLocalStorage('user', JSON.stringify(profileResponse.data));
           navigate("/");
         }
-        console.log(profileResponse);
       } catch (profileError) {
         const axiosProfileError = profileError as AxiosError;
         if (axiosProfileError.response && axiosProfileError.response.status === 404) {

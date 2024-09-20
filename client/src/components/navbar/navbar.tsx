@@ -73,6 +73,7 @@ const Navbar: React.FC = () => {
             <div className="left">
               <div className="features">
                 <div className="feature">Challenges</div>
+                <Link to="/challenge" className="feature">Challenges</Link>
                 <div className="feature">Join Events</div>
                 <div className="feature">Write</div>
                 <div className="feature">Learn</div>
