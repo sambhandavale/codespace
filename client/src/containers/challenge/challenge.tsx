@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import { isAuth } from "../../utility/helper";
 import { Link, useNavigate } from "react-router-dom";
 import { getLocalStorage } from "../../utility/helper";
 import Action from "../../utility/generalServices";
 import { IUser } from "../../interfaces/interfaces";
 import { challengeInfo } from "../../utility/challengeInfo";
+import { getSocket, getSocketId } from "../../hooks/SocketContext";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'; // Import the styles
 
 export interface IMessage {
   message: string;
@@ -26,7 +29,7 @@ const ChallengeComponent = () => {
   const [message, setMessage] = useState<IMessage | null>(null);
   const [optionsSelected, setOptionsSelected] = useState<IOptions>({ level: "", language: "" });
   const navigate = useNavigate();
-  console.log(message);
+  console.log("socketid:", socketId);
 
   // Level and language options
   const levels = [
@@ -43,8 +46,6 @@ const ChallengeComponent = () => {
     { label: "Go", value: "go" },
   ];
 
-  console.log(optionsSelected);
-
   // Fetch user info from localStorage
   useEffect(() => {
     const getUser = () => {
@@ -57,18 +58,13 @@ const ChallengeComponent = () => {
   }, []);
 
   useEffect(() => {
-    // Initialize socket connection and set up event listeners
     if (isAuth() && user?._id) {
-      const newSocket = io("http://localhost:5000");
+      const newSocket = getSocket();
+      const newSocketId = getSocketId();
       setSocket(newSocket);
-
-      newSocket.on("connect", () => {
-        setSocketId(newSocket.id as string);
-        console.log("User:", user._id, "is connected with socket ID:", newSocket.id);
-
-        newSocket.emit("onlineUser", user._id, newSocket.id);
-        newSocket.emit("userConnected", user._id);
-      });
+      if (typeof newSocketId === "string") {
+        setSocketId(newSocketId);
+      }
 
       newSocket.on("message", (data) => {
         setMessage(data);
@@ -86,12 +82,13 @@ const ChallengeComponent = () => {
           console.error("Room ID is missing in toChallengeRoom event.");
         }
       });
-
-      return () => {
-        newSocket.disconnect();
-      };
     }
   }, [user, navigate]);
+
+  // Log the socket in a separate effect
+  useEffect(() => {
+    console.log("Current Socket State:", socket); // Log updated socket state
+  }, [socket]);
 
   useEffect(() => {
     if (message?.room_id && socket) {
@@ -100,6 +97,12 @@ const ChallengeComponent = () => {
   }, [roomId, socket, message]);
 
   const getChallenge = async () => {
+    // Check if optionsSelected are empty and show a toast error if so
+    if (!optionsSelected.level && !optionsSelected.language) {
+      toast.error("Please select Level of Challenge and Language:");
+      return;
+    }
+
     try {
       if (user?._id && socketId) {
         const res = await Action.post("/api/challenge/find", {
@@ -116,11 +119,10 @@ const ChallengeComponent = () => {
         console.error("User ID or Socket ID is missing.");
       }
     } catch (err) {
-      console.error("Error getting challenge:", err); 
+      console.error("Error getting challenge:", err);
     }
   };
 
-  // Handle level and language selection with toggle
   const handleSelection = (key: keyof IOptions, value: string) => {
     setOptionsSelected((prev) => ({
       ...prev,
@@ -130,6 +132,7 @@ const ChallengeComponent = () => {
 
   return (
     <div className="challenge">
+      <ToastContainer /> {/* Toast container for notifications */}
       {isAuth() ? (
         <main>
           <div className="left">
@@ -167,10 +170,10 @@ const ChallengeComponent = () => {
                 </div>
               </div>
               <button
-                className={`finding ${(optionsSelected.level && optionsSelected.language) && `find`}`}
+                className={`finding ${(optionsSelected.level && optionsSelected.language) ? 'find' : ''}`}
                 onClick={getChallenge}
               >
-                {message?.msg_id !== 3 ? `Find Challenge`:`${message.message}...`}
+                {message?.msg_id !== 3 ? `Find Challenge` : `${message.message}...`}
               </button>
             </div>
           </div>

@@ -1,6 +1,6 @@
 // utility/challengeInfo.js
 export const challengeInfo = {
-  description: "Our coding challenge platform offers users the chance to challenge each other across three distinct difficulty levels: Easy, Medium, and Hard. Each level comes with its own set of problem types and judging criteria, ensuring a fair competition based on skill and complexity.",
+  description: "Our coding challenge platform offers users the chance to challenge each other across three distinct difficulty levels: Easy, Medium, and Hard. Each level comes with its own set of problem types and judging criteria, ensuring a fair competition based on skill and complexity. The question will be assigned from our end randomly based on the level and language that users selected.",
   levels: [
     {
       levelName: "Friendly Spar",

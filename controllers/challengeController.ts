@@ -7,8 +7,8 @@ interface IUser {
     socketId: string;
 }
 
-interface IUserInRoom extends IUser{
-    room_id:string;
+interface IUserInRoom extends IUser {
+    room_id: string;
 }
 
 interface IAvailUser {
@@ -24,7 +24,15 @@ interface IOptions {
 
 let onlineUsers: IUser[] = [];
 let availableUsers: IAvailUser[] = [];
-let peopleInRoom: IUserInRoom[][] = [];
+
+// Update availRoom structure to be an object with room IDs as keys
+let availRoom: {
+    [roomId: string]: {
+        user1: string;
+        user2: string;
+        optionsSelected: IOptions;
+    }
+} = {};
 
 export const addUsers = (userId: string, socketId: string) => {
     const newUser: IUser = { userId, socketId };
@@ -65,11 +73,13 @@ export const findChallenge = (req: Request, res: Response) => {
             msg_id: 1,
         });
 
-        const room: IUserInRoom[] = [
-            { userId, socketId, room_id },
-            { userId: matchedUser.userId, socketId: matchedUser.socketId, room_id },
-        ];
-        peopleInRoom.push(room);
+        // Create a room entry in availRoom with user IDs and options
+        availRoom[room_id] = {
+            user1: userId,
+            user2: matchedUser.userId,
+            optionsSelected: matchedUser.optionsSelected, // You can also keep user1's options if needed
+        };
+        console.log("Current rooms:", availRoom);
 
         // Remove both users from the availableUsers array after matching
         availableUsers.splice(matchedUserIndex, 1);
@@ -79,8 +89,7 @@ export const findChallenge = (req: Request, res: Response) => {
             room_id: room_id,
             msg_id: 1,
         });
-    } 
-    else {
+    } else {
         // If the user is already in the availableUsers array
         if (availableUsers.some(user => user.userId === userId)) {
             io.to(socketId).emit('message', {
@@ -92,8 +101,7 @@ export const findChallenge = (req: Request, res: Response) => {
                 success: false,
                 message: 'You are already in a room',
             });
-        } 
-        else {
+        } else {
             // Add the current user to the availableUsers array
             availableUsers.push({ userId, socketId, optionsSelected });
             io.to(socketId).emit('message', {
@@ -110,23 +118,35 @@ export const findChallenge = (req: Request, res: Response) => {
     }
 };
 
-// The rest of the functions remain the same
+// Updated exitRoom function
 export const exitRoom = (userId: string, socketId: string, roomId: string) => {
     if (roomId) {
-        // Find the room that matches the provided roomId
-        const room = peopleInRoom.find(room => 
-            room.some(user => user.room_id === roomId)
-        );
-
-        if (room) {
+        // Check if the room exists
+        if (availRoom[roomId]) {
             // Notify all users in the room about the exit
-            room.forEach(user => {
-                io.to(user.socketId).emit("exitRoom", { 
-                    message: `${userId} has exited the room.`,
-                    room_id: roomId, // Include the roomId
-                    msg_id: 4,
-                });
+            const { user1, user2 } = availRoom[roomId];
+
+            io.to(socketId).emit("exitRoom", { 
+                message: `${userId} has exited the room.`,
+                room_id: roomId,
+                msg_id: 4,
             });
+
+            // Notify the other user
+            const otherUserSocketId = (user1 === userId) ? user2 : user1; // Get the other user's socket ID
+            io.to(otherUserSocketId).emit("exitRoom", { 
+                message: `${userId} has exited the room.`,
+                room_id: roomId,
+                msg_id: 4,
+            });
+
+            // Remove the room from availRoom
+            delete availRoom[roomId];
+            console.log(`Room ${roomId} has been removed from availRoom`);
+
+            // Optionally, remove the users from availableUsers if needed
+            availableUsers = availableUsers.filter(u => u.userId !== user1 && u.userId !== user2);
+            console.log(`Users from room ${roomId} have been removed from availableUsers`);
         } else {
             console.error('Room not found for roomId:', roomId);
         }
@@ -135,24 +155,23 @@ export const exitRoom = (userId: string, socketId: string, roomId: string) => {
     }
 };
 
-
-
+// goToChallengeRoom function remains unchanged as it doesn't directly interact with availRoom
 export const goToChallengeRoom = (userId: string, socketId: string, roomId: string) => {
     if (roomId) {
-        console.log(`Redirecting ${userId} with socket ${socketId} to room: ${roomId}`);
         io.to(socketId).emit("toChallengeRoom", { 
             message: `${userId} has been redirected to room: ${roomId}.`,
             room_id: roomId,
             msg_id: 5,
         });
 
-        const otherUser = peopleInRoom.find(room => 
-            room.some(user => user.userId === userId)
-        )?.find(u => u.userId !== userId);
+        const otherUser = Object.values(availRoom).find(room => 
+            room.user1 === userId || room.user2 === userId
+        );
 
         if (otherUser) {
-            console.log(`Notifying other user ${otherUser.userId} about room ${roomId}`);
-            io.to(otherUser.socketId).emit("toChallengeRoom", { 
+            const otherUserId = (otherUser.user1 === userId) ? otherUser.user2 : otherUser.user1;
+            const otherUserSocketId = (otherUser.user1 === userId) ? otherUser.user2 : otherUser.user1;
+            io.to(otherUserSocketId).emit("toChallengeRoom", { 
                 message: `${userId} has been redirected to room: ${roomId}.`,
                 room_id: roomId,
                 msg_id: 5,
@@ -164,3 +183,5 @@ export const goToChallengeRoom = (userId: string, socketId: string, roomId: stri
         console.error('Room ID is missing for goToChallengeRoom');
     }
 };
+
+// Other functions remain unchanged

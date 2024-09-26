@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Action from "../../utility/generalServices";
 import { useNavigate } from "react-router-dom";
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import { IUser } from "../../interfaces/interfaces";
 import { getLocalStorage } from "../../utility/helper";
 import { isAuth } from "../../utility/helper";
 import { IMessage } from "./challenge";
+import { getSocket, getSocketId } from "../../hooks/SocketContext";
 
 interface IUserWithStatus extends IUser {
   currentUser: boolean; // additional field
@@ -16,7 +17,7 @@ interface IUserWithStatus extends IUser {
 const ChallengeRoom = () => {
   const { id } = useParams<{ id: string }>();
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [roomId, setRoomId] = useState<string | null>(id);
+  const [roomId, setRoomId] = useState<string | null>(id || null);
   const [currentUser, setCurrentUser] = useState<IUser | null>(null);
   const [socketId, setSocketId] = useState<string | null>(null);
   const [message, setMessage] = useState<IMessage | null>(null);
@@ -24,10 +25,8 @@ const ChallengeRoom = () => {
   const [error, setError] = useState<string | null>(null); // State to manage errors
   const [users, setUsers] = useState<IUserWithStatus[]>([]); // State to store structured user info
   const navigate = useNavigate();
-  console.log(message)
 
-  console.log("Room:",roomId);
-  console.log("socket:",socketId);
+  console.log("socket:",socket);
 
   useEffect(() => {
     const getUser = () => {
@@ -66,19 +65,15 @@ const ChallengeRoom = () => {
     fetchUsers();
   }, [id, currentUser]);
 
+
   useEffect(() => {
-    // Initialize socket connection and set up event listeners
     if (isAuth() && currentUser?._id) {
-      const newSocket = io("http://localhost:5000");
+      const newSocket = getSocket();
+      const newSocketId = getSocketId();
       setSocket(newSocket);
-
-      newSocket.on("connect", () => {
-        setSocketId(newSocket.id as string);
-        console.log("User:", currentUser?._id, "is connected with socket ID:", newSocket.id);
-
-        newSocket.emit("onlineUser", currentUser?._id, newSocket.id);
-        newSocket.emit("userConnected", currentUser?._id);
-      });
+      if (typeof newSocketId === "string") {
+        setSocketId(newSocketId);
+      }
 
       newSocket.on("message", (data) => {
         setMessage(data);
@@ -93,10 +88,6 @@ const ChallengeRoom = () => {
         setRoomId(null);
         navigate("/");
       });
-
-      return () => {
-        newSocket.disconnect();
-      };
     }
   }, [currentUser, navigate]);
 

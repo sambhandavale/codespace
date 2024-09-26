@@ -6,7 +6,7 @@
     align-items: center;
     gap: 65px;
     
-    background: var(--theme1); 
+    background: var(--white); 
 
     .top{
         display: flex;
@@ -15,6 +15,7 @@
         align-items: center;
         gap: 65px;
         align-self: stretch;
+        background: var(--theme1);
 
         .about{
             display: flex;
@@ -71,6 +72,8 @@
                 align-items: center;
                 gap: 10px;
                 min-width: 200px;
+                cursor: pointer;
+                text-decoration: none;
 
                 border-radius: 20px;
                 background: #FFF;
