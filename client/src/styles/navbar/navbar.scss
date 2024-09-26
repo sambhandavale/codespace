@@ -57,13 +57,19 @@
     
                     .feature{
                         padding: 8px 6px;
+                        text-decoration: none;
+                        cursor: pointer;
     
-                        color: #FFF;
+                        color:var(--white);
                         font-family: Inter;
                         font-size: 18px;
                         font-style: normal;
                         font-weight: 400;
                         line-height: normal;
+                    }
+
+                    .feature:hover{
+                        color:#c2c2c2;
                     }
                 }
             }

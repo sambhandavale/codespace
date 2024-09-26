@@ -5,34 +5,56 @@ import { Link, useNavigate } from "react-router-dom";
 import { getLocalStorage } from "../../utility/helper";
 import Action from "../../utility/generalServices";
 import { IUser } from "../../interfaces/interfaces";
+import { challengeInfo } from "../../utility/challengeInfo";
 
-interface IMessage {
+export interface IMessage {
   message: string;
   room_id: string;
   msg_id: number;
 }
 
+interface IOptions {
+  level: string;
+  language: string;
+}
+
 const ChallengeComponent = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [socketId, setSocketId] = useState<string>();
-  const [user, setUser] = useState<IUser>();
+  const [socketId, setSocketId] = useState<string | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
-  const [message, setMessage] = useState<IMessage>();
-  console.log("roomid:",roomId,",socket:",socket);
-  
-  const navigate = useNavigate(); // Initialize the navigate function
+  const [message, setMessage] = useState<IMessage | null>(null);
+  const [optionsSelected, setOptionsSelected] = useState<IOptions>({ level: "", language: "" });
+  const navigate = useNavigate();
+  console.log(message);
+
+  // Level and language options
+  const levels = [
+    { label: "Friendly Spar", value: "Easy" },
+    { label: "Tactical Duel", value: "Medium" },
+    { label: "Ultimate Showdown", value: "Hard" },
+  ];
+
+  const languages = [
+    { label: "Python", value: "python" },
+    { label: "Java", value: "java" },
+    { label: "C", value: "c" },
+    { label: "C++", value: "cpp" },
+    { label: "Go", value: "go" },
+  ];
+
+  console.log(optionsSelected);
 
   // Fetch user info from localStorage
-    useEffect(() => {
-      const getUser = () => {
-        const storedUser = getLocalStorage('user'); 
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
-      };
-      getUser();
-    }, []);
-  
+  useEffect(() => {
+    const getUser = () => {
+      const storedUser = getLocalStorage("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    };
+    getUser();
+  }, []);
 
   useEffect(() => {
     // Initialize socket connection and set up event listeners
@@ -41,74 +63,135 @@ const ChallengeComponent = () => {
       setSocket(newSocket);
 
       newSocket.on("connect", () => {
-        setSocketId(newSocket.id);
+        setSocketId(newSocket.id as string);
         console.log("User:", user._id, "is connected with socket ID:", newSocket.id);
 
-        // Emit events for onlineUser and userConnected
         newSocket.emit("onlineUser", user._id, newSocket.id);
         newSocket.emit("userConnected", user._id);
       });
 
-      // Listen for 'message' event from server
       newSocket.on("message", (data) => {
-        setMessage(data); // Set the message received from server
-      });
-
-      // Listen for 'exitRoom' event from server
-      newSocket.on("exitRoom", (data) => {
-        console.log("Exit room notification:", data);
         setMessage(data);
-        setRoomId(null);
-        navigate("/");
+        if (data.room_id) {
+          setRoomId(data.room_id);
+        }
       });
 
+      newSocket.on("toChallengeRoom", (data) => {
+        if (data.room_id) {
+          console.log("You are in room:", data.room_id);
+          setMessage(data);
+          navigate(`/challenge/${data.room_id}`);
+        } else {
+          console.error("Room ID is missing in toChallengeRoom event.");
+        }
+      });
 
       return () => {
-        newSocket.disconnect(); // Clean up on component unmount
+        newSocket.disconnect();
       };
     }
   }, [user, navigate]);
 
-  // Handle challenge request
+  useEffect(() => {
+    if (message?.room_id && socket) {
+      socket.emit("toChallengeRoom", { userId: user?._id, socketId, roomId: message.room_id });
+    }
+  }, [roomId, socket, message]);
+
   const getChallenge = async () => {
     try {
       if (user?._id && socketId) {
         const res = await Action.post("/api/challenge/find", {
-          userId: user._id, // Send userId from fetched user
-          socketId: socketId,
+          userId: user._id,
+          socketId,
+          optionsSelected,
         });
         if (res) {
           console.log("Challenge response:", res);
-          setRoomId(res.data.room_id);
+          const room_id = res.data.room_id;
+          setRoomId(room_id);
         }
       } else {
         console.error("User ID or Socket ID is missing.");
       }
     } catch (err) {
-      console.error("Error getting challenge:", err);
+      console.error("Error getting challenge:", err); 
     }
   };
 
-  const handleExitRoom = () => {
-    if (roomId && socket) {
-      socket.emit("exitRoom", { userId: user?._id, socketId, roomId }); // Ensure roomId is sent
-    } else {
-      console.error("Room ID or socket is missing.");
-    }
+  // Handle level and language selection with toggle
+  const handleSelection = (key: keyof IOptions, value: string) => {
+    setOptionsSelected((prev) => ({
+      ...prev,
+      [key]: prev[key] === value ? "" : value, // Toggle selection
+    }));
   };
-  
 
   return (
-    <div style={{ padding: "200px 0 0 0" }}>
+    <div className="challenge">
       {isAuth() ? (
-        <div>
-          <div className="msg">You are connected with Socket ID: {socketId}</div>
-          {message?.msg_id !== 1 ? <button onClick={getChallenge}>Find Challenge</button> : <button onClick={handleExitRoom}>Exit</button>}
-          {message && <div>{message.message}</div>}
-        </div>
+        <main>
+          <div className="left">
+            <img src="/assets/challenges/middle.png" alt="" />
+          </div>
+          <div className="right">
+            <div className="top">Challenge To Win</div>
+            <div className="bottom">
+              <div className="options">
+                <div className="levels">
+                  {levels.map((level) => (
+                    <button
+                      key={level.value}
+                      className={`level ${optionsSelected.level === level.value ? "selected" : ""}`}
+                      onClick={() => handleSelection("level", level.value)}
+                    >
+                      {level.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="lang">
+                  <div className="top">Choose Your Language</div>
+                  <div className="bottom">
+                    {languages.map((language) => (
+                      <div
+                        key={language.value}
+                        className={`lan ${optionsSelected.language === language.value ? "selected" : ""}`}
+                        onClick={() => handleSelection("language", language.value)}
+                      >
+                        <div className="langname">{language.label}</div>
+                        <img src={`/icons/challenge/languages/${language.value}.svg`} alt={language.label} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <button
+                className={`finding ${(optionsSelected.level && optionsSelected.language) && `find`}`}
+                onClick={getChallenge}
+              >
+                {message?.msg_id !== 3 ? `Find Challenge`:`${message.message}...`}
+              </button>
+            </div>
+          </div>
+        </main>
       ) : (
         <Link to="/authenticate/login">Login to Challenge</Link>
       )}
+      <div className="about">
+        <header>About Challenges</header>
+        <div className="content">
+          <div className="gen">{challengeInfo.description}</div>
+          <div className="info">
+            {challengeInfo.levels.map((level, index) => (
+              <div key={index} className="point">
+                <div className="levelname">{level.levelName}</div>
+                <div className="aboutlevel">{level.description}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

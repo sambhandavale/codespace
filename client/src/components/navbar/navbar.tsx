@@ -10,8 +10,6 @@ interface Profile {
 const Navbar: React.FC = () => {
   const location = useLocation(); 
   const { pathname } = location;
-
-  console.log(isAuth());
  
   const userData = getLocalStorage('user');
   const profile: Profile | null = userData ? JSON.parse(userData) : null;
@@ -72,7 +70,6 @@ const Navbar: React.FC = () => {
           <nav>
             <div className="left">
               <div className="features">
-                <div className="feature">Challenges</div>
                 <Link to="/challenge" className="feature">Challenges</Link>
                 <div className="feature">Join Events</div>
                 <div className="feature">Write</div>

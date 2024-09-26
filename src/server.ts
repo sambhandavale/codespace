@@ -7,7 +7,7 @@ import connectDB from '../config/db';
 import authRoutes from '../routes/authRoutes';
 import usersRoutes from '../routes/usersRoutes';
 import challengeRoutes from '../routes/challengeRoutes';
-import { addUsers, exitRoom } from '../controllers/challengeController';
+import { addUsers, exitRoom, goToChallengeRoom } from '../controllers/challengeController';
 
 dotenv.config();
 
@@ -41,6 +41,9 @@ io.on('connection', (socket) => {
   socket.on('userConnected',(userId) =>{
     console.log('User:', userId, 'is connected:', socket.id);
   });
+  socket.on('toChallengeRoom', ({ userId, socketId, roomId }) => {
+    goToChallengeRoom( userId, socketId, roomId);
+  });
   socket.on('exitRoom', ({ userId, socketId, roomId }) => {
     exitRoom( userId, socketId, roomId);
   });
@@ -49,3 +52,4 @@ io.on('connection', (socket) => {
 // Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+ 
