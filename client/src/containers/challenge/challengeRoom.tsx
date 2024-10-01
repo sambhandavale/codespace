@@ -26,7 +26,7 @@ const ChallengeRoom = () => {
   const [users, setUsers] = useState<IUserWithStatus[]>([]); // State to store structured user info
   const navigate = useNavigate();
 
-  console.log("socket:",socket);
+  console.log(message);
 
   useEffect(() => {
     const getUser = () => {
