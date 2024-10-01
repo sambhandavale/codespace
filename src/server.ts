@@ -15,7 +15,7 @@ const app: Application = express();
 const server = http.createServer(app);
 export const io = new Server(server, {
   cors: {
-    origin: "https://codespaceforyou.vercel.app/",
+    origin: ["https://codespaceforyou.vercel.app", "http://localhost:4321"],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   },
