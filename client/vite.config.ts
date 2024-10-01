@@ -7,7 +7,7 @@ export default defineConfig({
     port: 4321,
   },
   build: {
-    outDir: 'build',  // This matches the output directory for the production build
-    emptyOutDir: true,  // Clear the previous build files
-  },  
+    outDir: 'dist',  // Set this to the folder where your production build will go
+    target: 'esnext', // You can adjust this depending on browser support
+  },
 });
