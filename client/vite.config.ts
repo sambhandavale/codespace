@@ -7,4 +7,7 @@ export default defineConfig({
   server:{
     port:4321,
   },
+  build: {
+    outDir: 'build',  // Set the output directory to 'build'
+  },
 })
