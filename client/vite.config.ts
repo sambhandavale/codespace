@@ -8,5 +8,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'build',  // This matches the output directory for the production build
+    emptyOutDir: true,  // Clear the previous build files
   },  
 });
