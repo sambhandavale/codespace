@@ -85,5 +85,5 @@ export const logout = (): void => {
   removeLocalStorage('expirationDate'); // Optionally remove expiration date
 
   // Optionally, you can also redirect the user to the login page or home page
-  window.location.href = '/authenticate/login'; // Redirect to login page
+  window.location.href = '/'; // Redirect to login page
 };
