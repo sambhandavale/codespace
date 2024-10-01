@@ -7,6 +7,7 @@ export default defineConfig({
     port: 4321,
   },
   build: {
-    outDir: 'build',  // Ensure this is set to 'build'
+    outDir: 'build',  // Output directory for build
+    emptyOutDir: true,  // Clear previous build files
   },
 });
