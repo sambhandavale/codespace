@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const Home: React.FC = () => {
   return (
     <div className="home">
-      <div className="top">
+      <div className="aboutweb">
         <div className="about">
           <div className="tagline">Step into the Arena Let Your Code Speak!</div>
           <div className="info">
@@ -17,6 +17,22 @@ const Home: React.FC = () => {
           <Link to={"/challenge"}className="challenges feature_link">CHALLENGE</Link>
           <div className="learn feature_link">LEARN</div>
         </div>
+      </div>
+      <div className="services">
+        <header>
+          <div className="left">
+            <div className="top">
+              <span>~</span>Services 
+            </div>
+            <div className="bottom">Start with</div>
+          </div>
+          <div className="right"></div>
+        </header>
+        {/* <div className="eacserv">
+          <div className="serv events"></div>
+          <div className="serv course"></div>
+          <div className="serv write"></div>
+        </div> */}
       </div>
     </div>
   );
