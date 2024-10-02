@@ -34,7 +34,7 @@ const Register: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await Action.post("/api/auth/register", formData);
+      const response = await Action.post("/auth/register", formData);
       toast.success(response.data); // Show success toast
       navigate("/authenticate/login");
       setFormData({ username: "", email: "", password: "" }); // Reset form

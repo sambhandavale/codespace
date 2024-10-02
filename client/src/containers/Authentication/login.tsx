@@ -33,7 +33,7 @@ const Login: React.FC = () => {
     setLoading(true); // Set loading state
 
     try {
-      const response = await Action.post("/api/auth/login", formData);
+      const response = await Action.post("/auth/login", formData);
       authenticate(response); // Store token and user data
       toast.success("Logged in successfully!"); // Show success toast
       
@@ -47,7 +47,7 @@ const Login: React.FC = () => {
 
       // Attempt to fetch the user's profile
       try {
-        const profileResponse = await Action.get("/api/user/profile", config);
+        const profileResponse = await Action.get("/user/profile", config);
         if (profileResponse.data) {
           // Profile exists, navigate to the home page
           setLocalStorage('user', JSON.stringify(profileResponse.data));

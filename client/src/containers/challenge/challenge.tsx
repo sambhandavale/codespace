@@ -105,7 +105,7 @@ const ChallengeComponent = () => {
 
     try {
       if (user?._id && socketId) {
-        const res = await Action.post("/api/challenge/find", {
+        const res = await Action.post("/challenge/find", {
           userId: user._id,
           socketId,
           optionsSelected,

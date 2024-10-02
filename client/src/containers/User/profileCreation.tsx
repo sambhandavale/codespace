@@ -52,7 +52,7 @@ const ProfileCreation: React.FC = () => {
       };
 
       // Send the request to update profile
-      const response = await Action.put("/api/user/profile", formData, config);
+      const response = await Action.put("/user/profile", formData, config);
       setLocalStorage("user", JSON.stringify(response.data));
       toast.success("Profile updated successfully!"); // Show success toast 
 

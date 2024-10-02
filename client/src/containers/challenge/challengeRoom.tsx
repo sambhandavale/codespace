@@ -41,7 +41,7 @@ const ChallengeRoom = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await Action.get("/api/user/getAllUsers");
+        const res = await Action.get("/user/getAllUsers");
         
         if (res.data) {
           const usersInRoom = id?.split("_")[1].split("-") as string[];

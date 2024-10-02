@@ -2,7 +2,7 @@
 import { io, Socket } from "socket.io-client";
 import { isAuth } from "../utility/helper";
 
-const socket: Socket = io("http://localhost:5000"); // Replace with your server URL
+const socket: Socket = io(import.meta.env.VITE_SERVER_URL); // Replace with your server URL
 
 export const getSocket = (): Socket => {
   return socket;
@@ -13,7 +13,7 @@ export const getSocketId = ():string | undefined =>{
 }
 
 export const initializeSocket = (): void => {
-  if (isAuth()) { // Use a regular if statement
+  if (isAuth()) {
     socket.on("connect", () => {
       console.log("Connected to socket:", socket.id);
     });
