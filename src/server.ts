@@ -15,15 +15,26 @@ const app: Application = express();
 const server = http.createServer(app);
 export const io = new Server(server, {
   cors: {
-    origin: ["https://codespaceforyou.vercel.app", "http://localhost:4321"],
+    origin: [
+      "https://codespaceforyou.vercel.app", 
+      "http://localhost:4321"],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   },
 });
 
+app.use(
+  cors({
+    credentials: true,
+    origin: [
+      "https://codespaceforyou.vercel.app", 
+      "http://localhost:4321",
+    ],
+  }),
+);
+
 // Middleware
 app.use(express.json());
-app.use(cors());
 
 // Database connection
 connectDB();
