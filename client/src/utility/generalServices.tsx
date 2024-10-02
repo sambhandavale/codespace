@@ -1,7 +1,7 @@
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { getLocalStorage, logout } from './helper';
 
-const baseURL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000/api';
+const baseURL = `${import.meta.env.VITE_SERVER_URL}/api` || 'http://localhost:5000/api';
 
 const Action = axios.create({
   baseURL, // Use the environment variable for the base URL
