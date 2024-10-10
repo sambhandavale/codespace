@@ -6,6 +6,7 @@ import { Server } from 'socket.io';
 import connectDB from '../config/db';
 import authRoutes from '../routes/authRoutes';
 import usersRoutes from '../routes/usersRoutes';
+import questionRoutes from '../routes/questionRoutes';
 import challengeRoutes from '../routes/challengeRoutes';
 import { addUsers, exitRoom, goToChallengeRoom } from '../controllers/challengeController';
 
@@ -45,7 +46,8 @@ connectDB();
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', usersRoutes);
-app.use('/api/challenge', challengeRoutes); 
+app.use('/api/challenge', challengeRoutes);
+app.use('/api/questions', questionRoutes)
 
 
 io.on('connection', (socket) => {

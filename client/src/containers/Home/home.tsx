@@ -1,10 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { isAuth } from "../../utility/helper";
 
 const Home: React.FC = () => {
+  const lessPadding = isAuth() ? { padding: "150px 0px 100px 0px" } : {};
+
   return (
     <div className="home">
-      <div className="aboutweb">
+      <div className="aboutweb" style={lessPadding}>
         <div className="about">
           <div className="tagline">Step into the Arena Let Your Code Speak!</div>
           <div className="info">

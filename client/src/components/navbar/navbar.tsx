@@ -14,6 +14,7 @@ const Navbar: React.FC = () => {
   const userData = getLocalStorage('user');
   const profile: Profile | null = userData ? JSON.parse(userData) : null;
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  console.log(isAuth());
 
   const notAuthLinks = pathname !== '/authenticate/register' && pathname !== '/authenticate/login' && pathname !== '/user/createmyprofile';
   
@@ -43,20 +44,28 @@ const Navbar: React.FC = () => {
                   <Link to="/authenticate/login" className="login auth_link">Login</Link>
                 </div>
               ) : (
-                <div className="user" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-                  <div className="photo">{firstLetter}</div>
-                  <div className={`dropdown ${isDropdownOpen ? 'active' : ''}`}>
-                    <div className="abus op">
-                      <img src="/icons/navbar/user.svg" alt="" />
-                      <div className="tag">{profile?.firstName} {profile?.lastName}</div>
-                    </div>
-                    <div className="vie_pr op">
-                      <img src="/icons/navbar/profile.svg" alt="" />
-                      <div className="tag">View Profile</div>
-                    </div>
-                    <div className="lout op" onClick={() => logout()}>
-                      <img src="/icons/navbar/logout.svg" alt="" />
-                      <div className="tag">Logout</div>
+                <div className="rigsid">
+                  <div className="features">
+                    <Link to="/challenge" className="feature">Challenges</Link>
+                    <div className="feature">Join Events</div>
+                    <div className="feature">Write</div>
+                    <div className="feature">Learn</div>
+                  </div>
+                  <div className="user" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                    <div className="photo">{firstLetter}</div>
+                    <div className={`dropdown ${isDropdownOpen ? 'active' : ''}`}>
+                      <div className="abus op">
+                        <img src="/icons/navbar/user.svg" alt="" />
+                        <div className="tag">{profile?.firstName} {profile?.lastName}</div>
+                      </div>
+                      <div className="vie_pr op">
+                        <img src="/icons/navbar/profile.svg" alt="" />
+                        <div className="tag">View Profile</div>
+                      </div>
+                      <div className="lout op" onClick={() => logout()}>
+                        <img src="/icons/navbar/logout.svg" alt="" />
+                        <div className="tag">Logout</div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -65,7 +74,7 @@ const Navbar: React.FC = () => {
           )}
         </nav>
       </div>
-      {notAuthLinks && (
+      {notAuthLinks && !isAuth() && (
         <div className="bottom layer">
           <nav>
             <div className="left">

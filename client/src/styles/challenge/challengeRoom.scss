@@ -1,0 +1,218 @@
+.challenge_room{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1 0 0;
+    align-self: stretch;
+    padding: 90px 0 0 0;
+    height: 100vh;
+
+    .left{
+        display: flex;
+        padding: 20px;
+        align-items: center;
+        gap: 10px;
+        flex: 1 0 0;
+        align-self: stretch;
+        background: var(--theme1);
+
+        .editor{
+            flex: 1 0 0;
+            align-self: stretch;
+            background: var(--white);
+            border-radius: 10px;
+        }
+    }
+
+    .right{
+        display: flex;
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1 0 0;
+        align-self: stretch;
+        background: var(--theme1);
+
+        .info{
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            align-self: stretch;
+            border-radius: 15px;
+
+            background: var(--white);
+
+            .top{
+                display: flex;
+                padding: 30px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 26px;
+                align-self: stretch;
+                border-radius: 10px;
+
+                .aboutusers{
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+
+                    color: var(--theme1, #16423C);
+                    font-family: Freeman;
+                    font-size: 20px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: normal;
+                }  
+
+                header{
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    align-self: stretch;
+
+                    .level{
+                        display: flex;
+                        padding: 6px 10px;
+                        justify-content: center;
+                        align-items: center;
+                        gap: 10px;
+
+                        border-radius: 6px;
+                        background: var(--theme2, #FFB800);
+                        box-shadow: -6px 6px 0px 0px #E9A800;
+
+                        color: var(--white);
+                        font-family: Inter;
+                        font-size: 14px;
+                        font-style: normal;
+                        font-weight: 400;
+                        line-height: normal;
+                        text-transform: uppercase;
+                    }
+
+                    .qtitle{
+                        color: #000;
+                        font-family: Inter;
+                        font-size: 22px;
+                        font-style: normal;
+                        font-weight: 400;
+                        line-height: normal;
+                    }
+                }
+
+                .desc{
+                    flex: 1 0 0;
+                    color: var(--theme1);
+                    font-family: Inter;
+                    font-size: 18px;
+                    font-style: normal;
+                    font-weight: 400;
+                    line-height: normal;
+                }
+
+                .examples{
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 26px;
+                    align-self: stretch;
+
+                    .example{
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-start;
+                        align-self: stretch;
+
+                        .exampleno{
+                            color: var(--theme1, #16423C);
+                            font-family: Inter;
+                            font-size: 16px;
+                            font-style: normal;
+                            font-weight: 600;
+                            line-height: normal;
+                        }
+
+                        .aboutex_container{
+                            display: flex;
+                            padding: 10px 10px 10px 20px;
+                            flex-direction: column;
+                            align-items: flex-start;
+                            gap: 10px;
+
+                            .aboutex{
+                                display: flex;
+                                padding-left: 10px;
+                                flex-direction: column;
+                                align-items: flex-start;
+                                gap: 4px;
+                                align-self: stretch;
+                                border-left: 3px solid var(--theme2, #FFB800);
+
+                                .ex{
+                                    color: var(--theme1);
+                                    font-family: Inter;
+                                    font-size: 16px;
+                                    font-style: normal;
+                                    font-weight: 600;
+                                    line-height: normal;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            .bottom{
+                display: flex;
+                padding: 6px 35px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                align-self: stretch;
+                background:#25776c;
+                border-radius: 0 0 10px 10px;
+
+                .actions{
+                    display: flex;
+                    align-items: center;
+                    gap: 20px;
+
+                    .draw{
+                        color: #FFF;
+                        font-family: Freeman;
+                        font-size: 20px;
+                        font-style: normal;
+                        font-weight: 400;
+                        line-height: normal;
+                        cursor: pointer;
+                    }
+
+                    .abort{
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        gap: 2px;
+                        cursor: pointer;
+
+                        img{
+                            width: 30px;
+                            height: 30px;
+                            transition: transform ease-in-out 0.4s;
+                        }
+
+                        color: #FFF;
+                        font-family: Freeman;
+                        font-size: 20px;
+                        font-style: normal;
+                        font-weight: 400;
+                        line-height: normal;
+                    }
+
+                    .abort:hover img{
+                        transform: scale(1.1);
+                    }
+                }
+            }
+        }
+    }
+}

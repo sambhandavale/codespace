@@ -79,85 +79,114 @@
                 align-items: center;
                 gap: 16px;
 
-                .user {
+                .rigsid{
                     display: flex;
-                    align-items: center;
-                    position: relative;
-                  
-                    .photo {
-                      display: flex;
-                      padding: 4px 12px;
-                      flex-direction: column;
-                      justify-content: center;
-                      align-items: center;
-                      gap: 10px;
-                      flex: 1 0 0;
-                  
-                      border-radius: 50%;
-                      border: 3px solid var(--theme2);
-                      background: var(--theme1);
-                  
-                      color: var(--white);
-                      font-family: Inter;
-                      font-size: 24px;
-                      font-style: normal;
-                      font-weight: 400;
-                      line-height: normal;
-                      cursor: pointer;
-                    }
-                  
-                    .dropdown {
-                        display: none;
-                        position: absolute;
-                        top: 100%;
-                        right: 0;
-                        flex-direction: column;
-                        justify-content: center;
-                        align-items: flex-start;
-                        margin-top: 10px;
-                        border-radius: 8px;
-                        border: 1px solid rgba(255, 255, 255, 0.19);
-                        background: rgba(255, 255, 255, 0.07);
-                        backdrop-filter: blur(6.3px);
-                        z-index: 10;
-                  
-                      .op {
+                    gap:60px;
+
+                    .user {
                         display: flex;
-                        padding: 12px 20px;
                         align-items: center;
-                        gap: 10px;
-                        align-self: stretch;
-                        cursor: pointer;
-                        min-width: 200px;
-                  
-                        border-bottom: 1px solid rgba(255, 255, 255, 0.60);
-                  
-                        img {
-                          width: 24px;
-                          height: 24px;
-                        }
-                  
-                        .tag {
-                          color: #FFF;
+                        position: relative;
+                      
+                        .photo {
+                          display: flex;
+                          padding: 4px 12px;
+                          flex-direction: column;
+                          justify-content: center;
+                          align-items: center;
+                          gap: 10px;
+                          flex: 1 0 0;
+                      
+                          border-radius: 50%;
+                          border: 3px solid var(--theme2);
+                          background: var(--theme1);
+                      
+                          color: var(--white);
                           font-family: Inter;
-                          font-size: 20px;
+                          font-size: 24px;
                           font-style: normal;
                           font-weight: 400;
                           line-height: normal;
+                          cursor: pointer;
                         }
-                  
-                        &:last-child {
-                          border-bottom: none;
+                      
+                        .dropdown {
+                            display: none;
+                            position: absolute;
+                            top: 100%;
+                            right: 0;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: flex-start;
+                            margin-top: 10px;
+                            border-radius: 8px;
+                            border: 1px solid rgba(255, 255, 255, 0.19);
+                            background: rgba(255, 255, 255, 0.07);
+                            backdrop-filter: blur(6.3px);
+                            z-index: 10;
+                      
+                          .op {
+                            display: flex;
+                            padding: 12px 20px;
+                            align-items: center;
+                            gap: 10px;
+                            align-self: stretch;
+                            cursor: pointer;
+                            min-width: 200px;
+                      
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.60);
+                      
+                            img {
+                              width: 24px;
+                              height: 24px;
+                            }
+                      
+                            .tag {
+                              color: #FFF;
+                              font-family: Inter;
+                              font-size: 20px;
+                              font-style: normal;
+                              font-weight: 400;
+                              line-height: normal;
+                            }
+                      
+                            &:last-child {
+                              border-bottom: none;
+                            }
+                      
+                            &:hover {
+                              background-color: rgba(255, 255, 255, 0.1);
+                            }
+                          }
                         }
-                  
-                        &:hover {
-                          background-color: rgba(255, 255, 255, 0.1);
+    
+                        .active{
+                            display:flex;
                         }
-                      }
                     }
 
-                    .active{
-                        display:flex;
+                    .features{
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        gap: 34px;
+        
+                        .feature{
+                            padding: 8px 6px;
+                            text-decoration: none;
+                            cursor: pointer;
+        
+                            color:var(--white);
+                            font-family: Inter;
+                            font-size: 18px;
+                            font-style: normal;
+                            font-weight: 400;
+                            line-height: normal;
+                        }
+    
+                        .feature:hover{
+                            color:#c2c2c2;
+                        }
                     }
                 }
 
@@ -199,7 +228,7 @@
     }
 
     .top{
-        padding: 26px 40px 0 40px !important;
+        padding: 26px 40px 26px 40px !important;
     }
 
     .bottom{

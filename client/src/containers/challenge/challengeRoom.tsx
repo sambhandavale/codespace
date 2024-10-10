@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import Action from "../../utility/generalServices";
 import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
-import { IUser } from "../../interfaces/interfaces";
+import { IUser, IQuestion, IExample } from "../../interfaces/interfaces";
 import { getLocalStorage } from "../../utility/helper";
 import { isAuth } from "../../utility/helper";
 import { IMessage } from "./challenge";
@@ -24,9 +24,11 @@ const ChallengeRoom = () => {
   const [loading, setLoading] = useState<boolean>(true); // State to manage loading state
   const [error, setError] = useState<string | null>(null); // State to manage errors
   const [users, setUsers] = useState<IUserWithStatus[]>([]); // State to store structured user info
+  const [selectedQuestion, setSelectedQuestion] = useState<IQuestion>();
   const navigate = useNavigate();
 
   console.log(message);
+  console.log(selectedQuestion);
 
   useEffect(() => {
     const getUser = () => {
@@ -48,6 +50,8 @@ const ChallengeRoom = () => {
           const usersInRoomInfo = res.data.filter((u: IUser) =>
             u._id === usersInRoom[0] || u._id === usersInRoom[1]
           );
+          console.log(usersInRoom);
+          console.log(res.data);
           const structuredUsers = usersInRoomInfo.map((user: IUser) => ({
             ...user,
             currentUser: user._id === currentUser?._id,
@@ -65,6 +69,25 @@ const ChallengeRoom = () => {
     fetchUsers();
   }, [id, currentUser]);
 
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const res = await Action.get("/questions/easy");
+        const questions: IQuestion[] = res.data;
+
+        if (questions.length > 0) {
+          const randomIndex = Math.floor(Math.random() * questions.length);
+          setSelectedQuestion(questions[randomIndex]);
+        }
+      } catch (err) {
+        setError("Failed to fetch questions.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
 
   useEffect(() => {
     if (isAuth() && currentUser?._id) {
@@ -93,24 +116,56 @@ const ChallengeRoom = () => {
 
   const handleExitRoom = () => {
     if (roomId && socket) {
-      socket.emit("exitRoom", { userId: currentUser?._id, socketId, roomId }); // Ensure roomId is sent
+      socket.emit("exitRoom", { userId: currentUser?._id, socketId, roomId });
     } else {
       console.error("Room ID or socket is missing.");
     }
   };
 
   return (
-    <div style={{ padding: "200px 0 0 0" }}>
-      <h1>Challenge Room</h1>
-      {loading ? (
-        <p>Loading players...</p>
-      ) : (
-        <p>
-          {`${users[0].firstName} vs ${users[1].firstName}`}
-        </p>
-      )}
-      <button className="exit" onClick={handleExitRoom}>Quit Challenge</button>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div className="challenge_room">
+      <div className="left">
+        <div className="editor"></div>
+      </div>
+      <div className="right">
+        <div className="info">
+          <div className="top">
+            {loading ? (
+              <p>Loading players...</p>
+            ) : (
+              <div className="aboutusers">{`${users[0].firstName} (1200) vs ${users[1].firstName} (1250) (${selectedQuestion?.time} Min)`}</div>
+            )}
+            <header>
+              <div className="level">{selectedQuestion?.difficulty}</div>
+              <div className="qtitle">{selectedQuestion?.title}</div>
+            </header>
+            <div className="desc">{selectedQuestion?.task}</div>
+            <div className="examples">
+              {selectedQuestion?.examples.map((example: IExample, index) => (
+                <div key={index} className="example">
+                  <div className="exampleno">Example {index + 1}</div>
+                  <div className="aboutex_container">
+                    <div className="aboutex">
+                      <div className="inp ex">Input: {example.input}</div>
+                      <div className="out ex">Output: {example.output}</div>
+                      <div className="explain ex">Explanation: {example.explanation}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="bottom">
+            <div className="actions">
+              <div className="draw">1/2 DRAW</div>
+              <div className="abort" onClick={handleExitRoom}>
+                <img src="/icons/challenge/abort.svg" alt="abort" />
+                ABORT
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -6,7 +6,7 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
     try {
         // Fetch all profiles from the database
         const profiles: IProfile[] = await Profile.find();
-        res.json(profiles);
+        res.json(profiles); 
     } catch (error) {
         if (error instanceof Error) {
             console.error('Error fetching users:', error.message);
