@@ -9,6 +9,7 @@ export interface IProfile extends Document {
     phoneNumber?: number;
     university?: string;
     bio?: string;
+    rating: number;
 }
 
 // Create the Profile schema
@@ -20,6 +21,7 @@ const ProfileSchema: Schema = new Schema({
     phoneNumber: { type: Number },
     university: { type: String },
     bio: { type: String },
+    rating: {type: Number}
 }, { collection: 'userInfo' });
 
 // Create the Profile model

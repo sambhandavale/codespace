@@ -4,13 +4,14 @@ import Action from "../../utility/generalServices";
 import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { IUser, IQuestion, IExample } from "../../interfaces/interfaces";
-import { getLocalStorage } from "../../utility/helper";
+import { getLocalStorage, setLocalStorage } from "../../utility/helper";
 import { isAuth } from "../../utility/helper";
 import { IMessage } from "./challenge";
 import { getSocket, getSocketId } from "../../hooks/SocketContext";
+import CodeEditor from "../../components/challenges/challengeRoom/CodeEditor"
 
 interface IUserWithStatus extends IUser {
-  currentUser: boolean; // additional field
+  currentUser: boolean;
 }
 
 const ChallengeRoom = () => {
@@ -20,12 +21,14 @@ const ChallengeRoom = () => {
   const [currentUser, setCurrentUser] = useState<IUser | null>(null);
   const [socketId, setSocketId] = useState<string | null>(null);
   const [message, setMessage] = useState<IMessage | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); // State to manage loading state
-  const [error, setError] = useState<string | null>(null); // State to manage errors
-  const [users, setUsers] = useState<IUserWithStatus[]>([]); // State to store structured user info
-  const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(null); // Changed to a single question
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [users, setUsers] = useState<IUserWithStatus[]>([]);
+  const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null); // State to track time
   const navigate = useNavigate();
 
+  // Fetch user from localStorage
   useEffect(() => {
     const getUser = () => {
       const storedUser = getLocalStorage("user");
@@ -36,6 +39,7 @@ const ChallengeRoom = () => {
     getUser();
   }, [id]);
 
+  // Fetch users in the room
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -63,6 +67,7 @@ const ChallengeRoom = () => {
     fetchUsers();
   }, [id, currentUser]);
 
+  // Set up socket connection
   useEffect(() => {
     if (isAuth() && currentUser?._id) {
       const newSocket = getSocket();
@@ -94,7 +99,26 @@ const ChallengeRoom = () => {
         try {
           const res = await Action.get(`/challenge/allRooms?id=${roomId}`);
           if (res.data) {
-            setSelectedQuestion(res.data[0].question); // Assuming res.data is the question object
+            setSelectedQuestion(res.data[0].question);
+  
+            const savedStartTime = getLocalStorage(`timer_start_${roomId}`);
+            const currentTime = new Date().getTime();
+  
+            if (!savedStartTime) {
+              setLocalStorage(`timer_start_${roomId}`, currentTime.toString());
+              setTimeLeft(res.data[0].question.time * 60);
+            } else {
+              const elapsedTime = (currentTime - parseInt(savedStartTime, 10)) / 1000;
+              let remainingTime = res.data[0].question.time * 60 - elapsedTime;
+
+              remainingTime = Math.floor(remainingTime);
+  
+              if (remainingTime > 0) {
+                setTimeLeft(remainingTime);
+              } else {
+                handleExitRoom();
+              }
+            }
           }
         } catch (err) {
           console.error("Failed to fetch question:", err);
@@ -102,18 +126,42 @@ const ChallengeRoom = () => {
         }
       }
     };
-
+  
     fetchQuestion();
-  }, [roomId]); // Call when roomId changes
+  }, [roomId]);
+  
+
+  useEffect(() => {
+    if (timeLeft === null) return;
+
+    if (timeLeft === 0) {
+      handleExitRoom();
+    }
+
+    const timerId = setInterval(() => {
+      setTimeLeft(prevTime => (prevTime ? prevTime - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, [timeLeft]);
 
   const handleExitRoom = () => {
     if (roomId && socket) {
       socket.emit("exitRoom", { userId: currentUser?._id, socketId, roomId });
+      localStorage.removeItem(`timer_start_${roomId}`);
     } else {
       console.error("Room ID or socket is missing.");
     }
   };
 
+  // Format time into minutes and seconds
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+  };
+
+  // Check if current user is in the room
   const isCurrentUserInRoom = users.some(user => user._id === currentUser?._id);
 
   if (!isCurrentUserInRoom) {
@@ -123,12 +171,15 @@ const ChallengeRoom = () => {
   return (
     <div className="challenge_room">
       <div className="left">
-        <div className="editor"></div>
+        <CodeEditor />
       </div>
       <div className="right">
         <div className="info">
           <div className="top">
-            <div className="aboutusers">{`${users[0]?.firstName} (1200) vs ${users[1]?.firstName} (1250) (${selectedQuestion?.time} Min)`}</div>
+            <div className="users_timer">
+              <div className="aboutusers">{`${users[0]?.firstName} (${users[0]?.rating}) vs ${users[1]?.firstName} (${users[1]?.rating}) (${selectedQuestion?.time} Min)`}</div>
+              <div className="timer">Time left: {timeLeft !== null ? formatTime(timeLeft) : "Loading..."}</div>
+            </div>
             <header>
               <div className="level">{selectedQuestion?.difficulty}</div>
               <div className="qtitle">{selectedQuestion?.title}</div>

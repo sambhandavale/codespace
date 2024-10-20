@@ -7,7 +7,12 @@ export default defineConfig({
     port: 4321,
   },
   build: {
-    outDir: 'dist',  // Set this to the folder where your production build will go
-    target: 'esnext', // You can adjust this depending on browser support
+    outDir: 'dist',
+    target: 'esnext',
+  },
+  resolve: {
+    alias: {
+      '@': '/src',
+    },
   },
 });

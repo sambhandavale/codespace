@@ -37,10 +37,10 @@ const ChallengeComponent = () => {
   ];
 
   const languages = [
-    { label: "Python", value: "python" },
-    { label: "Java", value: "java" },
-    { label: "C", value: "c" },
-    { label: "C++", value: "cpp" },
+    { label: "Python", value: "python", active: 1 },
+    { label: "Java", value: "java", active: 0 },
+    { label: "C", value: "c", active: 0 },
+    { label: "C++", value: "cpp", active: 0 },
   ];
 
   // Fetch user info from localStorage
@@ -118,13 +118,13 @@ const ChallengeComponent = () => {
   const handleSelection = (key: keyof IOptions, value: string) => {
     setOptionsSelected((prev) => ({
       ...prev,
-      [key]: prev[key] === value ? "" : value, // Toggle selection
+      [key]: prev[key] === value ? "" : value,
     }));
   };
 
   return (
     <div className="challenge">
-      <ToastContainer /> {/* Toast container for notifications */}
+      <ToastContainer />
       {isAuth() ? (
         <main>
           <div className="left">
@@ -151,7 +151,7 @@ const ChallengeComponent = () => {
                     {languages.map((language) => (
                       <div
                         key={language.value}
-                        className={`lan ${optionsSelected.language === language.value ? "selected" : ""}`}
+                        className={`lan ${optionsSelected.language === language.value ? "selected" : ""} ${!language.active ? 'notactive' : ""}`}
                         onClick={() => handleSelection("language", language.value)}
                       >
                         <div className="langname">{language.label}</div>

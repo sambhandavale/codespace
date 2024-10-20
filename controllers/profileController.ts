@@ -33,8 +33,8 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
 export const updateProfile = async (req: Request, res: Response): Promise<void> => {
     const { firstName, lastName, birthDate, phoneNumber, university, bio } = req.body;
     try {
-        // Ensure req.user is correctly typed
-        const userId = (req as any).user?.id; // Adjust if you have a specific type for req.user
+        const initial_rating = 800;
+        const userId = (req as any).user?.id;
         if (!userId) {
             res.status(401).send('Unauthorized');
             return; 
@@ -42,7 +42,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 
         let profile: IProfile | null = await Profile.findOne({ user: userId });
         if (!profile) {
-            profile = new Profile({ firstName, lastName, birthDate, phoneNumber, university, bio, user: userId });
+            profile = new Profile({ firstName, lastName, birthDate, phoneNumber, university, bio, user: userId, rating:initial_rating });
             await profile.save();
         } else {
             profile.firstName = firstName || profile.firstName;

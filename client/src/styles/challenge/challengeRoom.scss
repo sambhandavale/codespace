@@ -17,10 +17,91 @@
         background: var(--theme1);
 
         .editor{
+            display: flex;
+            flex-direction: column;
             flex: 1 0 0;
             align-self: stretch;
-            background: var(--white);
+            background: #2F7A70;
             border-radius: 10px;
+            padding: 10px;
+            gap:10px;
+
+            .top{
+                display: flex;
+                padding: 12px 20px;
+                align-items: flex-start;
+                gap: 20px;
+                background: var(--white);
+                border-radius: 5px;
+
+                .title{
+                    color: #16423C;
+                    font-family: Freeman;
+                    font-size: 20px;
+                    font-style: normal;
+                    font-weight: 400;
+                }
+            }
+
+            .code{
+                display: flex;
+                height: 400px;
+                align-self: stretch;
+                background: var(--white);
+                border-radius: 5px;
+                padding:10px;
+
+                .code-input {
+                    display: flex;
+                    flex:1 0 0;
+                    align-self: stretch;
+                    background: transparent;
+                    border: none;
+                    color: var(--theme1);
+                    font-family: Inter;
+                    font-size: 16px;
+                    resize: none;
+                    outline: none;
+              
+                    &::placeholder {
+                      color: #75715e;
+                    }
+                  }
+            }
+
+            .middle{
+                display: flex;
+                padding: 12px 20px;
+                align-items: flex-start;
+                gap: 20px;
+                align-self: stretch;
+                background: var(--white);
+                border-radius: 5px;
+
+                .run,.submit{
+                    color: #16423C;
+                    font-family: Freeman;
+                    font-size: 20px;
+                    font-style: normal;
+                    font-weight: 400;
+                }
+            }
+
+            .output{
+                align-self: stretch;
+                background: var(--white);
+                border-radius: 5px;
+                flex:1 0 0;
+                padding: 10px;
+
+                .outputtext{
+                    color: var(--theme1);
+                    font-family: Inter;
+                    font-size: 16px;
+                    resize: none;
+                    outline: none;   
+                }
+            }
         }
     }
 
@@ -51,18 +132,34 @@
                 align-self: stretch;
                 border-radius: 10px;
 
-                .aboutusers{
+                .users_timer{
                     display: flex;
+                    justify-content: space-between;
                     align-items: center;
-                    gap: 10px;
+                    align-self: stretch;
+                    
+                    .aboutusers{
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+    
+                        color: var(--theme1, #16423C);
+                        font-family: Freeman;
+                        font-size: 20px;
+                        font-style: normal;
+                        font-weight: 400;
+                        line-height: normal;
+                    }
 
-                    color: var(--theme1, #16423C);
-                    font-family: Freeman;
-                    font-size: 20px;
-                    font-style: normal;
-                    font-weight: 400;
-                    line-height: normal;
-                }  
+                    .timer{
+                        color: var(--theme1, #16423C);
+                        font-family: Freeman;
+                        font-size: 20px;
+                        font-style: normal;
+                        font-weight: 400;
+                        line-height: normal;
+                    }
+                } 
 
                 header{
                     display: flex;

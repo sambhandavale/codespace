@@ -7,6 +7,7 @@ export interface IUser {
     phoneNumber: number;
     university: string;
     bio: string;
+    rating:number;
     __v: number;
 }
 

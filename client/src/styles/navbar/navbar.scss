@@ -120,8 +120,8 @@
                             align-items: flex-start;
                             margin-top: 10px;
                             border-radius: 8px;
-                            border: 1px solid rgba(255, 255, 255, 0.19);
-                            background: rgba(255, 255, 255, 0.07);
+                            border: 3px solid var(--theme1);
+                            background: rgba(255, 255, 255, 1);
                             backdrop-filter: blur(6.3px);
                             z-index: 10;
                       
@@ -134,15 +134,15 @@
                             cursor: pointer;
                             min-width: 200px;
                       
-                            border-bottom: 1px solid rgba(255, 255, 255, 0.60);
+                            border-bottom: 3px solid var(--theme1);
                       
                             img {
-                              width: 24px;
-                              height: 24px;
+                              width: 28px;
+                              height: 28px;
                             }
                       
                             .tag {
-                              color: #FFF;
+                              color: var(--theme1);
                               font-family: Inter;
                               font-size: 20px;
                               font-style: normal;
