@@ -216,3 +216,20 @@
         }
     }
 }
+
+.noentry{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    // margin: 90px 0 0 0;
+    height: 100vh;
+
+    color: var(--theme1);
+    text-align: center;
+    font-family: Freeman;
+    font-size: 30px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-transform: uppercase;
+}

@@ -19,7 +19,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         const newUser = new User({ username, password: hashedPassword, email });
         await newUser.save();
         
-        res.status(201).send('User registered');
+        res.status(201).send('User registered'); 
     } catch (error) {
         console.error('Error registering user:', error);
         res.status(500).send('Error registering user');

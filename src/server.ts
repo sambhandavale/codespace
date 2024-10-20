@@ -8,7 +8,7 @@ import authRoutes from '../routes/authRoutes';
 import usersRoutes from '../routes/usersRoutes';
 import questionRoutes from '../routes/questionRoutes';
 import challengeRoutes from '../routes/challengeRoutes';
-import { addUsers, exitRoom, goToChallengeRoom } from '../controllers/challengeController';
+import { exitRoom, goToChallengeRoom } from '../controllers/challengeController';
 
 dotenv.config();
 
@@ -51,9 +51,6 @@ app.use('/api/questions', questionRoutes)
 
 
 io.on('connection', (socket) => {
-  socket.on('onlineUser',(userId, socketId) => {
-    addUsers(userId,socketId);
-  });
   socket.on('userConnected',(userId) =>{
     console.log('User:', userId, 'is connected:', socket.id);
   });

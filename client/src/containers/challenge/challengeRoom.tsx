@@ -13,7 +13,6 @@ interface IUserWithStatus extends IUser {
   currentUser: boolean; // additional field
 }
 
-
 const ChallengeRoom = () => {
   const { id } = useParams<{ id: string }>();
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -24,11 +23,8 @@ const ChallengeRoom = () => {
   const [loading, setLoading] = useState<boolean>(true); // State to manage loading state
   const [error, setError] = useState<string | null>(null); // State to manage errors
   const [users, setUsers] = useState<IUserWithStatus[]>([]); // State to store structured user info
-  const [selectedQuestion, setSelectedQuestion] = useState<IQuestion>();
+  const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(null); // Changed to a single question
   const navigate = useNavigate();
-
-  console.log(message);
-  console.log(selectedQuestion);
 
   useEffect(() => {
     const getUser = () => {
@@ -44,14 +40,12 @@ const ChallengeRoom = () => {
     const fetchUsers = async () => {
       try {
         const res = await Action.get("/user/getAllUsers");
-        
+
         if (res.data) {
           const usersInRoom = id?.split("_")[1].split("-") as string[];
           const usersInRoomInfo = res.data.filter((u: IUser) =>
             u._id === usersInRoom[0] || u._id === usersInRoom[1]
           );
-          console.log(usersInRoom);
-          console.log(res.data);
           const structuredUsers = usersInRoomInfo.map((user: IUser) => ({
             ...user,
             currentUser: user._id === currentUser?._id,
@@ -60,34 +54,14 @@ const ChallengeRoom = () => {
           setUsers(structuredUsers);
         }
       } catch (err) {
-        setError("Failed to fetch users."); // Set error if the request fails
-      } finally {
-        setLoading(false); // Set loading to false after the request
-      }
-    };
-
-    fetchUsers();
-  }, [id, currentUser]);
-
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const res = await Action.get("/questions/easy");
-        const questions: IQuestion[] = res.data;
-
-        if (questions.length > 0) {
-          const randomIndex = Math.floor(Math.random() * questions.length);
-          setSelectedQuestion(questions[randomIndex]);
-        }
-      } catch (err) {
-        setError("Failed to fetch questions.");
+        setError("Failed to fetch users.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchQuestions();
-  }, []);
+    fetchUsers();
+  }, [id, currentUser]);
 
   useEffect(() => {
     if (isAuth() && currentUser?._id) {
@@ -114,6 +88,24 @@ const ChallengeRoom = () => {
     }
   }, [currentUser, navigate]);
 
+  useEffect(() => {
+    const fetchQuestion = async () => {
+      if (roomId) {
+        try {
+          const res = await Action.get(`/challenge/allRooms?id=${roomId}`);
+          if (res.data) {
+            setSelectedQuestion(res.data[0].question); // Assuming res.data is the question object
+          }
+        } catch (err) {
+          console.error("Failed to fetch question:", err);
+          setError("Failed to fetch question.");
+        }
+      }
+    };
+
+    fetchQuestion();
+  }, [roomId]); // Call when roomId changes
+
   const handleExitRoom = () => {
     if (roomId && socket) {
       socket.emit("exitRoom", { userId: currentUser?._id, socketId, roomId });
@@ -121,6 +113,12 @@ const ChallengeRoom = () => {
       console.error("Room ID or socket is missing.");
     }
   };
+
+  const isCurrentUserInRoom = users.some(user => user._id === currentUser?._id);
+
+  if (!isCurrentUserInRoom) {
+    return <div className="noentry">You are not allowed here</div>;
+  }
 
   return (
     <div className="challenge_room">
@@ -130,11 +128,7 @@ const ChallengeRoom = () => {
       <div className="right">
         <div className="info">
           <div className="top">
-            {loading ? (
-              <p>Loading players...</p>
-            ) : (
-              <div className="aboutusers">{`${users[0].firstName} (1200) vs ${users[1].firstName} (1250) (${selectedQuestion?.time} Min)`}</div>
-            )}
+            <div className="aboutusers">{`${users[0]?.firstName} (1200) vs ${users[1]?.firstName} (1250) (${selectedQuestion?.time} Min)`}</div>
             <header>
               <div className="level">{selectedQuestion?.difficulty}</div>
               <div className="qtitle">{selectedQuestion?.title}</div>

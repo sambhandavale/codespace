@@ -1,14 +1,40 @@
 import { Request, Response } from "express";
 import { Socket } from "socket.io";
 import { io } from "../src/server";
+import { AvailableUsers, Rooms } from "../models/Challenge";
+import axios from "axios";
 
-interface IUser {
+interface IOnlineUser {
     userId: string;
     socketId: string;
 }
 
-interface IUserInRoom extends IUser {
+export interface IRoom{
     room_id: string;
+    user1: IOnlineUser;
+    user2: IOnlineUser;
+    optionsSelected: IOptions;
+    question: IQuestion;
+}
+
+export interface IExample {
+    _id: string;
+    input: string;
+    output: string;
+    explanation: string;
+}
+
+export interface IQuestion {
+    _id: string;
+    id: number;
+    title: string;
+    difficulty: string;
+    task: string;
+    input_format: string;
+    constraints: string;
+    output_format: string;
+    time: number;
+    examples: IExample[];
 }
 
 interface IAvailUser {
@@ -22,25 +48,10 @@ interface IOptions {
     language: string;
 }
 
-let onlineUsers: IUser[] = [];
-let availableUsers: IAvailUser[] = [];
+const base_url = process.env.BASE_URL;
 
-// Update availRoom structure to be an object with room IDs as keys
-let availRoom: {
-    [roomId: string]: {
-        user1: IUser;
-        user2: IUser;
-        optionsSelected: IOptions;
-    }
-} = {};
-
-export const addUsers = (userId: string, socketId: string) => {
-    const newUser: IUser = { userId, socketId };
-    onlineUsers = onlineUsers.filter(user => user.userId !== newUser.userId);
-    onlineUsers.push(newUser);
-}
-
-export const findChallenge = (req: Request, res: Response) => {
+// Function to find a challenge
+export const findChallenge = async (req: Request, res: Response) => {
     const { userId, socketId, optionsSelected } = req.body as IAvailUser;
 
     if (!userId || !socketId) {
@@ -50,101 +61,126 @@ export const findChallenge = (req: Request, res: Response) => {
         });
     }
 
-    // Find an available user with the same options
-    const matchedUserIndex = availableUsers.findIndex(
-        user => user.optionsSelected.level === optionsSelected.level &&
-                user.optionsSelected.language === optionsSelected.language &&
-                user.userId !== userId
-    );
+    const matchedUser = await AvailableUsers.findOne({
+        "optionsSelected.level": optionsSelected.level,
+        "optionsSelected.language": optionsSelected.language,
+        userId: { $ne: userId }
+    }) as IAvailUser; // Type assertion
 
-    if (matchedUserIndex !== -1) {
-        const matchedUser = availableUsers[matchedUserIndex];
-        const room_id = `room_${userId}-${matchedUser.userId}`;
-
-        // Emit the message to both users to notify them that the room is created
-        io.to(socketId).emit('message', {
-            message: `You are in room: ${room_id}`,
-            room_id: room_id,
-            msg_id: 1,
-        });
-        io.to(matchedUser.socketId).emit('message', {
-            message: `You are in room: ${room_id}`,
-            room_id: room_id,
-            msg_id: 1,
-        });
-
-        // Create a room entry in availRoom with user IDs and options
-        availRoom[room_id] = {
-            user1: {userId:userId, socketId:socketId},
-            user2: {userId:matchedUser.userId, socketId:matchedUser.socketId},
-            optionsSelected: matchedUser.optionsSelected, // You can also keep user1's options if needed
-        };
-        console.log("Current rooms:", availRoom);
-
-        // Remove both users from the availableUsers array after matching
-        availableUsers.splice(matchedUserIndex, 1);
-
-        return res.status(200).json({
-            message: `You are in room: ${room_id}`,
-            room_id: room_id,
-            msg_id: 1,
-        });
-    } else {
-        // If the user is already in the availableUsers array
-        if (availableUsers.some(user => user.userId === userId)) {
-            io.to(socketId).emit('message', {
-                message: `You are already in a room`,
-                room_id: null,
-                msg_id: 2,
-            });
-            return res.status(400).json({
+    try {
+        // Fetch questions based on the level selected (convert to lowercase for API call)
+        const response = await axios.get(`${base_url}/api/questions/${optionsSelected.level.toLowerCase()}`);
+        const questions = response.data as IQuestion[];
+        if (!questions || questions.length === 0) {
+            return res.status(500).json({
                 success: false,
-                message: 'You are already in a room',
-            });
-        } else {
-            // Add the current user to the availableUsers array
-            availableUsers.push({ userId, socketId, optionsSelected });
-            io.to(socketId).emit('message', {
-                message: `Waiting for opponent`,
-                room_id: null,
-                msg_id: 3,
-            });
-            return res.status(102).json({
-                message: 'Waiting for opponent',
-                room_id: null,
-                msg_id: 3,
+                message: 'No questions available for the selected level.',
             });
         }
+
+        // Randomly select a question from the array
+        const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+
+        if (matchedUser) {
+            const room_id = `room_${userId}-${matchedUser.userId}`;
+
+            // Notify both users
+            io.to(socketId).emit('message', {
+                message: `You are in room: ${room_id}`,
+                room_id: room_id,
+                msg_id: 1,
+            });
+            io.to(matchedUser.socketId).emit('message', {
+                message: `You are in room: ${room_id}`,
+                room_id: room_id,
+                msg_id: 1,
+            });
+
+            // Save room with the selected question
+            const newRoom = new Rooms({
+                room_id,
+                user1: { userId: userId, socketId: socketId },
+                user2: { userId: matchedUser.userId, socketId: matchedUser.socketId },
+                optionsSelected,
+                question: randomQuestion,
+            });
+            await newRoom.save();
+
+            // Remove the users from availableUsers after matching
+            await AvailableUsers.deleteMany({ userId: { $in: [userId, matchedUser.userId] } });
+
+            return res.status(200).json({
+                message: `You are in room: ${room_id}`,
+                room_id: room_id,
+                msg_id: 1,
+                question: randomQuestion, // Return the selected question in the response
+            });
+        } else {
+            const existingUser = await AvailableUsers.findOne({ userId });
+            if (existingUser) {
+                io.to(socketId).emit('message', {
+                    message: `You are already in a room`,
+                    room_id: null,
+                    msg_id: 2,
+                });
+                return res.status(400).json({
+                    success: false,
+                    message: 'You are already in a room',
+                });
+            } else {
+                const availableUser = new AvailableUsers({ userId, socketId, optionsSelected });
+                await availableUser.save();
+
+                io.to(socketId).emit('message', {
+                    message: `Waiting for opponent`,
+                    room_id: null,
+                    msg_id: 3,
+                });
+                return res.status(102).json({
+                    message: 'Waiting for opponent',
+                    room_id: null,
+                    msg_id: 3,
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching questions:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch questions for the challenge.',
+        });
     }
 };
 
 // Updated exitRoom function
-export const exitRoom = (userId: string, socketId: string, roomId: string) => {
+export const exitRoom = async (userId: string, socketId: string, roomId: string) => {
     if (roomId) {
-        // Check if the room exists
-        if (availRoom[roomId]) {
-            // Notify all users in the room about the exit
-            const { user1, user2 } = availRoom[roomId];
+        // Find the room in the Rooms collection
+        const room = await Rooms.findOne({ room_id: roomId });
 
-            io.to(user1.socketId).emit("exitRoom", { 
+        if (room) {
+            const { user1, user2 } = room;
+
+            // Notify both users in the room about the exit
+            io.to(user1.socketId).emit("exitRoom", {
                 message: `${user1.userId} has exited the room.`,
                 room_id: roomId,
                 msg_id: 4,
             });
 
-            io.to(user2.socketId).emit("exitRoom", { 
+            io.to(user2.socketId).emit("exitRoom", {
                 message: `${user2.userId} has exited the room.`,
                 room_id: roomId,
                 msg_id: 4,
             });
 
-            // Remove the room from availRoom
-            delete availRoom[roomId];
-            console.log(`Room ${roomId} has been removed from availRoom`);
+            // Remove the room from the Rooms collection
+            await Rooms.deleteOne({ room_id: roomId });
+            console.log(`Room ${roomId} has been removed from the Rooms collection`);
 
-            // Optionally, remove the users from availableUsers if needed
-            availableUsers = availableUsers.filter(u => u.userId !== user1.userId && u.userId !== user2.userId);
-            console.log(`Users from room ${roomId} have been removed from availableUsers`);
+            // Optionally, remove the users from AvailableUsers if needed
+            await AvailableUsers.deleteMany({ userId: { $in: [user1.userId, user2.userId] } });
+            console.log(`Users from room ${roomId} have been removed from AvailableUsers`);
         } else {
             console.error('Room not found for roomId:', roomId);
         }
@@ -153,33 +189,56 @@ export const exitRoom = (userId: string, socketId: string, roomId: string) => {
     }
 };
 
-// goToChallengeRoom function remains unchanged as it doesn't directly interact with availRoom
-export const goToChallengeRoom = (userId: string, socketId: string, roomId: string) => {
+// Updated goToChallengeRoom function
+export const goToChallengeRoom = async (userId: string, socketId: string, roomId: string) => {
     if (roomId) {
+        // Emit to the requesting user
         io.to(socketId).emit("toChallengeRoom", { 
             message: `${userId} has been redirected to room: ${roomId}.`,
             room_id: roomId,
             msg_id: 5,
         });
 
-        const otherUser = Object.values(availRoom).find(room => 
-            room.user1.userId === userId || room.user2.userId === userId
-        );
+        // Find the room in the Rooms collection
+        const room = await Rooms.findOne({ room_id: roomId });
 
-        if (otherUser) {
-            const otherUserId = (otherUser.user1.userId === userId) ? otherUser.user2.userId : otherUser.user1.userId;
-            const otherUserSocketId = (otherUser.user1.userId === userId) ? otherUser.user2.socketId : otherUser.user1.socketId;
-            io.to(otherUserSocketId).emit("toChallengeRoom", { 
+        if (room) {
+            // Identify the other user in the room
+            const otherUser = (room.user1.userId === userId) ? room.user2 : room.user1;
+
+            // Notify the other user
+            io.to(otherUser.socketId).emit("toChallengeRoom", {
                 message: `${userId} has been redirected to room: ${roomId}.`,
                 room_id: roomId,
                 msg_id: 5,
             });
         } else {
-            console.log(`No other user found in room ${roomId}`);
+            console.log(`Room ${roomId} not found in the Rooms collection`);
         }
     } else {
         console.error('Room ID is missing for goToChallengeRoom');
     }
 };
 
-// Other functions remain unchanged
+// To get all the Rooms
+export const getAllRooms = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { room_id } = req.query;
+        let rooms: IRoom[];
+        if (room_id) {
+            rooms = await Rooms.find({ room_id });
+        } else {
+            rooms = await Rooms.find();
+        }
+
+        res.json(rooms);
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error('Error fetching all rooms:', error.message);
+        } else {
+            console.error('Unknown error:', error);
+        }
+        res.status(500).send('Error fetching all rooms');
+    }
+}
+

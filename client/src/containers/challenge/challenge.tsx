@@ -29,9 +29,7 @@ const ChallengeComponent = () => {
   const [message, setMessage] = useState<IMessage | null>(null);
   const [optionsSelected, setOptionsSelected] = useState<IOptions>({ level: "", language: "" });
   const navigate = useNavigate();
-  console.log("socketid:", socketId);
 
-  // Level and language options
   const levels = [
     { label: "Friendly Spar", value: "Easy" },
     { label: "Tactical Duel", value: "Medium" },
@@ -43,14 +41,13 @@ const ChallengeComponent = () => {
     { label: "Java", value: "java" },
     { label: "C", value: "c" },
     { label: "C++", value: "cpp" },
-    { label: "Go", value: "go" },
   ];
 
   // Fetch user info from localStorage
   useEffect(() => {
     const getUser = () => {
       const storedUser = getLocalStorage("user");
-      if (storedUser) {
+      if (storedUser) { 
         setUser(JSON.parse(storedUser));
       }
     };
@@ -84,11 +81,8 @@ const ChallengeComponent = () => {
       });
     }
   }, [user, navigate]);
+  
 
-  // Log the socket in a separate effect
-  useEffect(() => {
-    console.log("Current Socket State:", socket); // Log updated socket state
-  }, [socket]);
 
   useEffect(() => {
     if (message?.room_id && socket) {
@@ -97,12 +91,10 @@ const ChallengeComponent = () => {
   }, [roomId, socket, message]);
 
   const getChallenge = async () => {
-    // Check if optionsSelected are empty and show a toast error if so
     if (!optionsSelected.level && !optionsSelected.language) {
       toast.error("Please select Level of Challenge and Language:");
       return;
     }
-
     try {
       if (user?._id && socketId) {
         const res = await Action.post("/challenge/find", {
